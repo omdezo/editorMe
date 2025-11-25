@@ -2,6 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Aperture, Maximize } from 'lucide-react';
 
+import heroVideo from '../assets/hero.mp4';
+
 const Hero: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const videoRefRaw = useRef<HTMLVideoElement>(null);
@@ -64,7 +66,7 @@ const Hero: React.FC = () => {
             <div className="absolute inset-0 z-0 opacity-40">
                 <video
                     ref={videoRefRaw}
-                    src="/hero-video.mp4"
+                    src={heroVideo}
                     className="w-full h-full object-cover filter grayscale contrast-[0.8] blur-[2px]"
                     autoPlay
                     muted
@@ -90,7 +92,7 @@ const Hero: React.FC = () => {
             >
                 <video
                     ref={videoRefPolished}
-                    src="/hero-video.mp4"
+                    src={heroVideo}
                     className="w-full h-full object-cover filter contrast-[1.1] saturate-[1.2] brightness-110"
                     autoPlay
                     muted
