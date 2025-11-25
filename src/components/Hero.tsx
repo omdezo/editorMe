@@ -64,7 +64,7 @@ const Hero: React.FC = () => {
             <div className="absolute inset-0 z-0 opacity-40">
                 <video
                     ref={videoRefRaw}
-                    src="/test الدقيقة 59.mp4"
+                    src="/hero-video.mp4"
                     className="w-full h-full object-cover filter grayscale contrast-[0.8] blur-[2px]"
                     autoPlay
                     muted
@@ -90,7 +90,7 @@ const Hero: React.FC = () => {
             >
                 <video
                     ref={videoRefPolished}
-                    src="/test الدقيقة 59.mp4"
+                    src="/hero-video.mp4"
                     className="w-full h-full object-cover filter contrast-[1.1] saturate-[1.2] brightness-110"
                     autoPlay
                     muted
