@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Scissors, Monitor, ChevronRight, ChevronDown, Search, Folder, FileVideo, Settings, Aperture, Image as ImageIcon, Video } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Clip {
     id: string;
@@ -42,6 +43,7 @@ const About: React.FC = () => {
     const [activeClip, setActiveClip] = useState<Clip | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const timelineRef = useRef<HTMLDivElement>(null);
+    const { t } = useLanguage();
 
     // Auto-play simulation
     useEffect(() => {
@@ -91,7 +93,7 @@ const About: React.FC = () => {
                             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                             ONLINE // EDIT_SUITE_01
                         </div>
-                        <h3 className="text-3xl font-bold text-white tracking-tight">WORKSTATION</h3>
+                        <h3 className="text-3xl font-bold text-white tracking-tight">{t('about.workstation')}</h3>
                     </div>
                     <div className="flex gap-6 text-xs font-mono text-gray-500">
                         <span>CPU: <span className="text-gray-300">12%</span></span>
@@ -101,13 +103,14 @@ const About: React.FC = () => {
                 </div>
 
                 {/* Main Workspace Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 h-[700px] bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 h-[700px] bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden shadow-2xl" dir="ltr">
+                    {/* Force LTR for the editor interface to keep it looking like software */}
 
                     {/* LEFT COLUMN: Project Bin (3 cols) */}
                     <div className="lg:col-span-3 bg-[#141414] border-r border-white/5 flex flex-col">
                         {/* Panel Header */}
                         <div className="h-8 bg-[#1f1f1f] border-b border-black flex items-center px-3 justify-between">
-                            <span className="text-xs font-bold text-gray-400">PROJECT: PORTFOLIO_V1</span>
+                            <span className="text-xs font-bold text-gray-400">{t('about.project')}</span>
                             <Settings size={12} />
                         </div>
 
@@ -115,46 +118,46 @@ const About: React.FC = () => {
                         <div className="p-2 border-b border-white/5">
                             <div className="bg-[#0a0a0a] rounded px-2 py-1 flex items-center gap-2 text-xs border border-white/5">
                                 <Search size={12} className="text-gray-500" />
-                                <input type="text" placeholder="Search..." className="bg-transparent w-full outline-none text-gray-400 placeholder-gray-600" />
+                                <input type="text" placeholder={t('about.search')} className="bg-transparent w-full outline-none text-gray-400 placeholder-gray-600" />
                             </div>
                         </div>
 
                         {/* Tree View */}
                         <div className="flex-1 overflow-y-auto p-2 text-xs font-medium text-gray-400">
-                            <div className="flex items-center gap-1 py-1 text-white"><ChevronDown size={12} /><Folder size={12} className="text-blue-400" /> <span>Master Sequence</span></div>
+                            <div className="flex items-center gap-1 py-1 text-white"><ChevronDown size={12} /><Folder size={12} className="text-blue-400" /> <span>{t('about.master')}</span></div>
                             <div className="pl-4">
                                 <div className="flex items-center gap-1 py-1 hover:bg-white/5 rounded px-1 cursor-pointer"><FileVideo size={12} className="text-purple-400" /> <span>Main_Timeline_v04</span></div>
                             </div>
 
-                            <div className="flex items-center gap-1 py-1 mt-2"><ChevronRight size={12} /><Folder size={12} className="text-yellow-400" /> <span>Footage</span></div>
+                            <div className="flex items-center gap-1 py-1 mt-2"><ChevronRight size={12} /><Folder size={12} className="text-yellow-400" /> <span>{t('about.footage')}</span></div>
                             <div className="pl-4 text-gray-500">
                                 <div className="flex items-center gap-1 py-1"><FileVideo size={12} /> <span>A001_Raw</span></div>
                                 <div className="flex items-center gap-1 py-1"><FileVideo size={12} /> <span>B002_City</span></div>
                             </div>
 
-                            <div className="flex items-center gap-1 py-1 mt-2"><ChevronRight size={12} /><Folder size={12} className="text-green-400" /> <span>Audio</span></div>
-                            <div className="flex items-center gap-1 py-1 mt-2"><ChevronRight size={12} /><Folder size={12} className="text-pink-400" /> <span>GFX</span></div>
+                            <div className="flex items-center gap-1 py-1 mt-2"><ChevronRight size={12} /><Folder size={12} className="text-green-400" /> <span>{t('about.audio')}</span></div>
+                            <div className="flex items-center gap-1 py-1 mt-2"><ChevronRight size={12} /><Folder size={12} className="text-pink-400" /> <span>{t('about.gfx')}</span></div>
                         </div>
 
                         {/* Metadata Panel */}
                         <div className="h-1/3 border-t border-white/5 bg-[#111] p-3 overflow-y-auto">
-                            <div className="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider">Clip Metadata</div>
+                            <div className="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider">{t('about.metadata')}</div>
                             {activeClip ? (
                                 <div className="space-y-2 text-xs">
                                     <div className="grid grid-cols-3 gap-2">
-                                        <span className="text-gray-600">Name</span>
+                                        <span className="text-gray-600">{t('about.meta_name')}</span>
                                         <span className="col-span-2 text-gray-300 truncate">{activeClip.title}</span>
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
-                                        <span className="text-gray-600">Dur</span>
+                                        <span className="text-gray-600">{t('about.meta_dur')}</span>
                                         <span className="col-span-2 text-gray-300">{activeClip.duration}</span>
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
-                                        <span className="text-gray-600">Res</span>
+                                        <span className="text-gray-600">{t('about.meta_res')}</span>
                                         <span className="col-span-2 text-gray-300">3840x2160</span>
                                     </div>
                                     <div className="grid grid-cols-3 gap-2">
-                                        <span className="text-gray-600">Codec</span>
+                                        <span className="text-gray-600">{t('about.meta_codec')}</span>
                                         <span className="col-span-2 text-gray-300">ProRes 422 HQ</span>
                                     </div>
                                 </div>
@@ -173,7 +176,7 @@ const About: React.FC = () => {
                             {/* Source Monitor (Static/Placeholder) */}
                             <div className="hidden md:flex w-1/2 border-r border-white/5 flex-col bg-[#141414]">
                                 <div className="h-8 bg-[#1f1f1f] border-b border-black flex items-center px-3 justify-between">
-                                    <span className="text-xs font-bold text-gray-400">SOURCE: (NO CLIP)</span>
+                                    <span className="text-xs font-bold text-gray-400">{t('about.source')}</span>
                                 </div>
                                 <div className="flex-1 flex items-center justify-center bg-[#050505] relative">
                                     <div className="text-xs text-gray-700 font-mono">NO SIGNAL</div>
@@ -190,7 +193,7 @@ const About: React.FC = () => {
                             {/* Program Monitor (Active) */}
                             <div className="w-full md:w-1/2 flex flex-col bg-[#141414]">
                                 <div className="h-8 bg-[#1f1f1f] border-b border-black flex items-center px-3 justify-between">
-                                    <span className="text-xs font-bold text-emerald-500">PROGRAM: MASTER_SEQ</span>
+                                    <span className="text-xs font-bold text-emerald-500">{t('about.program')}</span>
                                     <div className="text-[10px] font-mono text-gray-400">FIT / 100%</div>
                                 </div>
                                 <div className="flex-1 relative bg-black overflow-hidden flex items-center justify-center group">

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Phone, Mail, Instagram, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 const Contact: React.FC = () => {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -26,21 +28,12 @@ const Contact: React.FC = () => {
         try {
             await fetch(webhookUrl, {
                 method: 'POST',
-                // mode: 'no-cors', // Zapier webhooks often require no-cors if called directly from browser due to CORS policies, but let's try standard first or handle the opaque response if needed. Actually, standard fetch to Zapier usually triggers CORS errors in browser unless using a proxy or no-cors. 
-                // However, 'no-cors' means we can't check response status. 
-                // Let's try standard POST. If it fails due to CORS, we might need 'no-cors'. 
-                // User provided code snippet didn't specify no-cors, but it's common. 
-                // I'll use the user's exact snippet structure but add error handling.
-                // Actually, for a simple contact form, 'no-cors' is often the safest bet to avoid CORS errors blocking the request, even if we can't read the response.
-                // But let's stick to the user's request structure first.
                 body: JSON.stringify({
                     ...formData,
                     timestamp: new Date().toISOString()
                 })
             });
 
-            // Since we might get an opaque response or CORS error if not handled, 
-            // but assuming it works or we just treat it as sent:
             setStatus('success');
             setFormData({ name: '', email: '', message: '' });
 
@@ -63,8 +56,8 @@ const Contact: React.FC = () => {
                     viewport={{ once: true }}
                     className="text-center mb-16"
                 >
-                    <h2 className="text-4xl md:text-6xl font-bold mb-4">LET'S CREATE</h2>
-                    <p className="text-slate-400 text-xl mb-8">Ready to start your next project? Get in touch.</p>
+                    <h2 className="text-4xl md:text-6xl font-bold mb-4">{t('contact.title')}</h2>
+                    <p className="text-slate-400 text-xl mb-8">{t('contact.subtitle')}</p>
 
                     <div className="flex flex-wrap justify-center gap-6 mb-12">
                         <a href="tel:+96891276869" className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all group">
@@ -91,7 +84,7 @@ const Contact: React.FC = () => {
                                 transition={{ duration: 0.5, delay: 0.1 }}
                                 viewport={{ once: true }}
                             >
-                                <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-2">Name</label>
+                                <label htmlFor="name" className="block text-sm font-medium text-slate-400 mb-2">{t('contact.name')}</label>
                                 <input
                                     type="text"
                                     id="name"
@@ -108,7 +101,7 @@ const Contact: React.FC = () => {
                                 transition={{ duration: 0.5, delay: 0.1 }}
                                 viewport={{ once: true }}
                             >
-                                <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-2">Email</label>
+                                <label htmlFor="email" className="block text-sm font-medium text-slate-400 mb-2">{t('contact.email')}</label>
                                 <input
                                     type="email"
                                     id="email"
@@ -127,7 +120,7 @@ const Contact: React.FC = () => {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             viewport={{ once: true }}
                         >
-                            <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-2">Message</label>
+                            <label htmlFor="message" className="block text-sm font-medium text-slate-400 mb-2">{t('contact.message')}</label>
                             <textarea
                                 id="message"
                                 rows={5}
@@ -150,23 +143,23 @@ const Contact: React.FC = () => {
                                 type="submit"
                                 disabled={status === 'submitting' || status === 'success'}
                                 className={`inline-flex items-center px-8 py-4 font-bold rounded-full transition-all group ${status === 'success'
-                                        ? 'bg-emerald-500 text-white'
-                                        : 'bg-primary text-white hover:bg-primary/90'
+                                    ? 'bg-emerald-500 text-white'
+                                    : 'bg-primary text-white hover:bg-primary/90'
                                     } disabled:opacity-70 disabled:cursor-not-allowed`}
                             >
                                 {status === 'submitting' ? (
                                     <>
-                                        Sending...
+                                        {t('contact.sending')}
                                         <Loader2 size={18} className="ml-2 animate-spin" />
                                     </>
                                 ) : status === 'success' ? (
                                     <>
-                                        Message Sent!
+                                        {t('contact.sent')}
                                         <CheckCircle size={18} className="ml-2" />
                                     </>
                                 ) : (
                                     <>
-                                        Send Message
+                                        {t('contact.send')}
                                         <Send size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                     </>
                                 )}
@@ -175,7 +168,7 @@ const Contact: React.FC = () => {
                             {status === 'error' && (
                                 <div className="mt-4 text-red-500 flex items-center justify-center gap-2 text-sm">
                                     <AlertCircle size={16} />
-                                    <span>Something went wrong. Please try again or email directly.</span>
+                                    <span>{t('contact.error')}</span>
                                 </div>
                             )}
                         </motion.div>

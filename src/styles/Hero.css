@@ -1,170 +1,147 @@
-.hero-section {
+:root {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+}
+
+.hero-prism-container {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
+  background-color: var(--bg-color);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: radial-gradient(ellipse at center, #1a0033 0%, #000000 100%);
 }
 
-.hero-section::before {
-  content: '';
+.prism-wrapper {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 50%, rgba(75, 0, 130, 0.15) 0%, transparent 50%);
-  animation: pulse 8s ease-in-out infinite alternate;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+.prism-layer {
+  position: absolute;
+  inset: -5%;
+  /* Make slightly larger to avoid edge gaps on move */
+  width: 110%;
+  height: 110%;
+  background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2670&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: screen;
+  /* The magic blend mode */
+  opacity: 0.8;
+  will-change: transform;
+  transition: transform 0.1s cubic-bezier(0.1, 0.5, 0.5, 1);
 }
 
-.hero-content {
+/* 
+   To create the RGB split effect on a color image:
+   We can't easily isolate channels with just CSS blend modes on a single image.
+   However, we can simulate it by tinting the layers or using a specific image style.
+   
+   Better approach for CSS-only RGB split:
+   1. Use a B&W version of the image? No, we want color.
+   2. Use the same image but apply color filters?
+   
+   Let's try a "Glitch" aesthetic where the layers are just copies.
+   To make it look like RGB split, we can use `filter: drop-shadow` on the text,
+   but for the image, moving 3 copies with `screen` blend mode creates a ghosting effect
+   that looks very similar to chromatic aberration, especially if the image has high contrast.
+*/
+
+.layer-red {
+  transform: translate(var(--red-x, 0), var(--red-y, 0));
+  /* Tinting attempt */
+  filter: sepia(100%) saturate(300%) hue-rotate(-50deg) opacity(0.6);
+}
+
+.layer-green {
+  transform: translate(var(--green-x, 0), var(--green-y, 0));
+  filter: sepia(100%) saturate(300%) hue-rotate(50deg) opacity(0.6);
+}
+
+.layer-blue {
+  transform: translate(var(--blue-x, 0), var(--blue-y, 0));
+  filter: sepia(100%) saturate(300%) hue-rotate(180deg) opacity(0.6);
+}
+
+/* Film Grain Overlay */
+.film-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Typography */
+.prism-content {
   position: relative;
-  z-index: 2;
+  z-index: 20;
   text-align: center;
-  padding: 2rem;
-  max-width: 900px;
+  /* Slight parallax on text */
+  transform: translate(var(--text-x, 0), var(--text-y, 0));
+  transition: transform 0.1s ease-out;
 }
 
-.hero-title {
-  font-size: clamp(4rem, 15vw, 10rem);
+.prism-title {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(4rem, 12vw, 10rem);
   font-weight: 900;
   line-height: 0.9;
-  margin: 0 0 2rem 0;
-  letter-spacing: -0.03em;
-}
-
-.hero-line {
-  display: block;
-  background: linear-gradient(135deg, #ffffff 0%, #c77dff 50%, #8a2be2 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  animation: fadeUp 0.8s ease-out backwards;
-}
-
-.hero-line:nth-child(1) { animation-delay: 0.2s; }
-.hero-line:nth-child(2) { animation-delay: 0.4s; }
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.hero-description {
-  font-size: clamp(1rem, 2vw, 1.3rem);
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.7);
-  letter-spacing: 0.05em;
-  line-height: 1.6;
-  margin-bottom: 3rem;
-  animation: fadeUp 0.8s ease-out 0.6s backwards;
-}
-
-.hero-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 1rem 2.5rem;
-  background: rgba(138, 43, 226, 0.2);
-  border: 2px solid rgba(138, 43, 226, 0.5);
-  border-radius: 50px;
   color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-  animation: fadeUp 0.8s ease-out 0.8s backwards;
-}
-
-.hero-button:hover {
-  background: rgba(138, 43, 226, 0.3);
-  border-color: rgba(138, 43, 226, 1);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
-}
-
-.arrow {
-  transition: transform 0.3s ease;
-}
-
-.hero-button:hover .arrow {
-  transform: translateX(5px);
-}
-
-.hero-scroll {
-  position: absolute;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.75rem;
+  margin: 0;
+  letter-spacing: -0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  animation: fadeUp 0.8s ease-out 1s backwards;
+  mix-blend-mode: overlay;
+  /* Blend text with the chaos */
+
+  /* Text RGB Split */
+  text-shadow:
+    calc(var(--red-x) * 0.5) calc(var(--red-y) * 0.5) 0 rgba(255, 0, 0, 0.7),
+    calc(var(--blue-x) * 0.5) calc(var(--blue-y) * 0.5) 0 rgba(0, 0, 255, 0.7);
+}
+
+.prism-subtitle {
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 8px;
+  margin-top: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Vignette to focus center */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, transparent 30%, #000 120%);
+  z-index: 10;
+  pointer-events: none;
 }
 
 .scroll-indicator {
-  width: 2px;
-  height: 40px;
-  background: linear-gradient(to bottom, rgba(138, 43, 226, 0.5), transparent);
-  position: relative;
-  overflow: hidden;
-}
-
-.scroll-indicator::after {
-  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 30%;
-  background: rgba(224, 170, 255, 0.8);
-  animation: scrollDown 2s ease-in-out infinite;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  z-index: 20;
 }
 
-@keyframes scrollDown {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(400%); }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-  .hero-section { min-height: 100svh; }
-  .hero-content { padding: 1.5rem; }
-  .hero-description { margin-bottom: 2rem; }
-  .hero-scroll { bottom: 2rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-section::before,
-  .hero-line,
-  .hero-description,
-  .hero-button,
-  .hero-scroll,
-  .scroll-indicator::after {
-    animation: none;
-  }
-  .hero-line,
-  .hero-description,
-  .hero-button,
-  .hero-scroll {
-    opacity: 1;
+  .prism-title {
+    font-size: 15vw;
   }
 }

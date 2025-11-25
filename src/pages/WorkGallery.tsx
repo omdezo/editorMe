@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CustomCursor from '../components/CustomCursor';
 import FilmGrain from '../components/FilmGrain';
+import { useLanguage } from '../context/LanguageContext';
 
 import { portfolioData } from '../data/portfolio';
 
@@ -13,10 +14,12 @@ const WorkGallery: React.FC = () => {
     const { categoryId } = useParams<{ categoryId: string }>();
     const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { t, dir } = useLanguage();
 
     const category = portfolioData.find(item => item.id === categoryId);
     const videos = category ? category.videos : [];
-    const title = category ? category.name : 'Work';
+    // Use translation for title if category exists, otherwise fallback
+    const title = category ? t(`work.${category.id}.name`) : t('work.title');
 
     // Handle body class for cursor visibility
     useEffect(() => {
@@ -31,7 +34,7 @@ const WorkGallery: React.FC = () => {
     }, [selectedVideo]);
 
     if (!categoryId || !videos) {
-        return <div>Category not found</div>;
+        return <div>{t('gallery.not_found')}</div>;
     }
 
     return (
@@ -47,8 +50,8 @@ const WorkGallery: React.FC = () => {
                             to="/work"
                             className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors group"
                         >
-                            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                            Back to Categories
+                            <ArrowLeft size={20} className={`transition-transform ${dir === 'rtl' ? 'rotate-180 group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`} />
+                            {t('gallery.back')}
                         </Link>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}

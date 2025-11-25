@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const Navbar: React.FC = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+    const { t, toggleLanguage, language } = useLanguage();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -17,15 +18,16 @@ const Navbar: React.FC = () => {
     }, []);
 
     const navLinks = [
-        { name: 'Work', href: '/work', isRouterLink: true },
-        { name: 'About', href: '/#about', isRouterLink: false },
-        { name: 'Contact', href: '/#contact', isRouterLink: false },
+        { name: t('nav.work'), href: '/work', isRouterLink: true },
+        { name: t('nav.about'), href: '/#about', isRouterLink: false },
+        { name: t('nav.contact'), href: '/#contact', isRouterLink: false },
     ];
 
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-slate-950/80 backdrop-blur-md py-4' : 'bg-transparent py-6'
                 }`}
+            dir="ltr" // Force LTR for the navbar container itself if we want the logo always on left? No, let it flip.
         >
             <div className="container mx-auto px-6 flex justify-between items-center">
                 <Link to="/" className="text-2xl font-bold tracking-tighter text-white">
@@ -33,7 +35,7 @@ const Navbar: React.FC = () => {
                 </Link>
 
                 {/* Desktop Menu */}
-                <div className="hidden md:flex space-x-8">
+                <div className="hidden md:flex items-center space-x-8 rtl:space-x-reverse">
                     {navLinks.map((link) => (
                         link.isRouterLink ? (
                             <Link
@@ -53,15 +55,32 @@ const Navbar: React.FC = () => {
                             </a>
                         )
                     ))}
+
+                    {/* Language Toggle */}
+                    <button
+                        onClick={toggleLanguage}
+                        className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm uppercase tracking-widest border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-800"
+                    >
+                        <Globe size={14} />
+                        <span>{language === 'en' ? 'AR' : 'EN'}</span>
+                    </button>
                 </div>
 
                 {/* Mobile Menu Button */}
-                <button
-                    className="md:hidden text-white"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    {isMobileMenuOpen ? <X /> : <Menu />}
-                </button>
+                <div className="md:hidden flex items-center gap-4">
+                    <button
+                        onClick={toggleLanguage}
+                        className="text-white text-sm font-bold"
+                    >
+                        {language === 'en' ? 'AR' : 'EN'}
+                    </button>
+                    <button
+                        className="text-white"
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    >
+                        {isMobileMenuOpen ? <X /> : <Menu />}
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Menu Overlay */}
