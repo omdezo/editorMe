@@ -1,152 +1,172 @@
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Aperture, Maximize, Focus } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, useVelocity } from 'framer-motion';
+import { ArrowDown } from 'lucide-react';
 
 const Hero: React.FC = () => {
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Mouse Position (0-1)
-    const mouseX = useMotionValue(0.5);
-    const mouseY = useMotionValue(0.5);
+    // Mouse Position
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
 
-    // Smooth Mouse for Lens
-    const smoothX = useSpring(mouseX, { damping: 20, stiffness: 150 });
-    const smoothY = useSpring(mouseY, { damping: 20, stiffness: 150 });
+    // Smooth Mouse
+    const smoothX = useSpring(mouseX, { damping: 50, stiffness: 400 });
+    const smoothY = useSpring(mouseY, { damping: 50, stiffness: 400 });
+
+    // Velocity for "Scrub" effect
+    const velocityX = useVelocity(smoothX);
+    const velocityY = useVelocity(smoothY);
+
+    // Dynamic Transformations based on velocity/position
+    const skewX = useTransform(velocityX, [-1000, 1000], [-15, 15]);
+    const scale = useTransform(velocityX, [-1000, 1000], [0.9, 1.1]);
+
+    // RGB Split Offsets
+    const redX = useTransform(velocityX, [-2000, 2000], [-10, 10]);
+    const blueX = useTransform(velocityX, [-2000, 2000], [10, -10]);
+    const greenY = useTransform(velocityY, [-2000, 2000], [-5, 5]);
 
     const handleMouseMove = (e: React.MouseEvent) => {
         const { clientX, clientY } = e;
-        const { innerWidth, innerHeight } = window;
-        mouseX.set(clientX / innerWidth);
-        mouseY.set(clientY / innerHeight);
+        mouseX.set(clientX);
+        mouseY.set(clientY);
     };
-
-    // Lens Size
-    const lensSize = 350;
-
-    // Clip Path for the "Polished" Layer
-    const clipPath = useTransform(
-        [smoothX, smoothY],
-        ([x, y]: number[]) => {
-            const px = x * 100;
-            const py = y * 100;
-            return `circle(${lensSize / 2}px at ${px} % ${py} %)`;
-        }
-    );
 
     return (
         <section
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            className="h-screen w-full bg-black overflow-hidden relative cursor-none select-none font-sans"
+            className="h-screen w-full bg-black overflow-hidden relative cursor-none select-none font-sans flex items-center justify-center"
         >
-            {/* 1. RAW LAYER (Background - Grayscale & Grainy) */}
-            <div className="absolute inset-0 z-0">
-                <img
-                    src="/omar-01.jpg"
-                    alt="Omar Raw"
-                    className="w-full h-full object-cover filter grayscale contrast-[1.2] brightness-75 blur-[1px]"
-                />
-                {/* Heavy Grain Overlay */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay" />
+            {/* Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
-                {/* Dark Vignette */}
-                <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/50 to-black/90" />
+            {/* Radial Gradient for depth */}
+            <div className="absolute inset-0 bg-radial-gradient from-purple-900/20 via-black to-black pointer-events-none" />
 
-                {/* Raw Data Overlay */}
-                <div className="absolute top-32 left-10 font-mono text-xs text-white/30 flex flex-col gap-1 z-20">
-                    <span>IMG_RAW_001.CR3</span>
-                    <span>ISO 1600 / f/2.8</span>
-                    <span>AWAITING_GRADE</span>
-                </div>
-            </div>
+            {/* Main Content Container */}
+            <div className="relative z-10 flex flex-col items-center justify-center">
 
-            {/* 2. POLISHED LAYER (Foreground - Revealed by Lens) */}
-            <motion.div
-                className="absolute inset-0 z-10"
-                style={{ clipPath }}
-            >
-                <img
-                    src="/omar-01.jpg"
-                    alt="Omar Polished"
-                    className="w-full h-full object-cover filter contrast-[1.1] saturate-[1.1] brightness-110"
-                />
-                {/* Polished Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-teal-500/20 mix-blend-overlay" />
-            </motion.div>
-
-            {/* 3. LENS UI (The Ring) */}
-            <motion.div
-                className="absolute z-20 pointer-events-none"
-                style={{
-                    left: useTransform(smoothX, x => `calc(${x * 100} % - ${lensSize / 2}px)`),
-                    top: useTransform(smoothY, y => `calc(${y * 100} % - ${lensSize / 2}px)`),
-                    width: lensSize,
-                    height: lensSize,
-                }}
-            >
-                {/* Ring */}
-                <div className="absolute inset-0 rounded-full border border-white/40 shadow-[0_0_50px_rgba(255,255,255,0.1)] backdrop-blur-[0px]" />
-
-                {/* Crosshairs */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-3 bg-white/80" />
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-0.5 h-3 bg-white/80" />
-                <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-0.5 bg-white/80" />
-                <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-3 h-0.5 bg-white/80" />
-
-                {/* Center Focus */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 border border-white/30 rounded-full flex items-center justify-center">
-                    <div className="w-1 h-1 bg-red-500 rounded-full animate-pulse" />
-                </div>
-
-                {/* Lens Data */}
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-3 text-[10px] font-mono text-white font-bold tracking-widest whitespace-nowrap bg-black/50 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">
-                    <span className="text-emerald-400">IN_FOCUS</span>
-                    <span className="w-[1px] h-3 bg-white/20" />
-                    <span>1/250</span>
-                </div>
-            </motion.div>
-
-            {/* 4. TYPOGRAPHY (Static but High Impact) */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-30 mix-blend-difference">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="flex flex-col items-center"
-                >
-                    <h1 className="text-[15vw] font-black text-white leading-none tracking-tighter mix-blend-difference">
+                {/* The "Scrubber" Text Group */}
+                <div className="relative">
+                    {/* RGB Split Layers (Red) */}
+                    <motion.h1
+                        style={{ x: redX, skewX, scale, opacity: 0.7 }}
+                        className="text-[15vw] md:text-[12vw] font-black text-red-500 absolute inset-0 mix-blend-screen select-none pointer-events-none blur-[1px]"
+                    >
                         OMAR
-                    </h1>
-                    <div className="flex items-center gap-6 mt-4">
-                        <div className="h-[1px] w-16 bg-white/50" />
-                        <h2 className="text-2xl md:text-3xl font-bold text-white tracking-[0.5em] uppercase">
-                            Editor
-                        </h2>
-                        <div className="h-[1px] w-16 bg-white/50" />
-                    </div>
+                    </motion.h1>
+
+                    {/* RGB Split Layers (Blue) */}
+                    <motion.h1
+                        style={{ x: blueX, skewX, scale, opacity: 0.7 }}
+                        className="text-[15vw] md:text-[12vw] font-black text-blue-500 absolute inset-0 mix-blend-screen select-none pointer-events-none blur-[1px]"
+                    >
+                        OMAR
+                    </motion.h1>
+
+                    {/* RGB Split Layers (Green) */}
+                    <motion.h1
+                        style={{ y: greenY, skewX, scale, opacity: 0.7 }}
+                        className="text-[15vw] md:text-[12vw] font-black text-green-500 absolute inset-0 mix-blend-screen select-none pointer-events-none blur-[1px]"
+                    >
+                        OMAR
+                    </motion.h1>
+
+                    {/* Main White Text */}
+                    <motion.h1
+                        style={{ skewX, scale }}
+                        className="text-[15vw] md:text-[12vw] font-black text-white relative z-10 mix-blend-normal"
+                    >
+                        OMAR
+                    </motion.h1>
+                </div>
+
+                <motion.div
+                    style={{ skewX: useTransform(skewX, v => -v) }}
+                    className="flex items-center gap-6 mt-4 overflow-hidden"
+                >
+                    <div className="h-[2px] w-12 bg-white/50" />
+                    <h2 className="text-xl md:text-3xl font-bold text-white/80 tracking-[0.5em] uppercase">
+                        Editor
+                    </h2>
+                    <div className="h-[2px] w-12 bg-white/50" />
                 </motion.div>
+
             </div>
 
-            {/* 5. BOTTOM UI */}
-            <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end z-30 pointer-events-none text-white mix-blend-difference">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2 text-xs font-mono opacity-50">
-                        <Aperture size={14} />
-                        <span>APERTURE: F/1.4</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs font-mono opacity-50">
-                        <Maximize size={14} />
-                        <span>ZOOM: 100%</span>
-                    </div>
+            {/* Playhead / Cursor */}
+            <motion.div
+                className="fixed top-0 bottom-0 w-[1px] bg-red-500 z-50 pointer-events-none mix-blend-difference"
+                style={{ left: smoothX }}
+            >
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-red-500 text-black text-[10px] font-mono px-1 py-0.5 font-bold">
+                    SCRUB
                 </div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-red-500 text-black text-[10px] font-mono px-1 py-0.5 font-bold">
+                    {/* Display simulated timecode based on X position */}
+                    <TimecodeDisplay x={smoothX} />
+                </div>
+            </motion.div>
 
-                <div className="flex items-center gap-2">
-                    <Focus size={14} className="text-red-500 animate-spin-slow" />
-                    <span className="text-xs font-bold tracking-widest opacity-80">REC</span>
-                </div>
-            </div>
+            {/* Scroll Indicator */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 1 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
+            >
+                <span className="text-[10px] uppercase tracking-widest">Scroll to Explore</span>
+                <ArrowDown size={16} className="animate-bounce" />
+            </motion.div>
+
         </section>
     );
+};
+
+// Helper component for dynamic timecode
+const TimecodeDisplay = ({ x }: { x: any }) => {
+    const [timecode, setTimecode] = useState("00:00:00:00");
+
+    useTransform(x, (latest: number) => {
+        const totalFrames = Math.floor((latest / window.innerWidth) * 1000);
+        const frames = totalFrames % 24;
+        const seconds = Math.floor(totalFrames / 24) % 60;
+        const minutes = Math.floor(totalFrames / (24 * 60));
+
+        const f = frames.toString().padStart(2, '0');
+        const s = seconds.toString().padStart(2, '0');
+        const m = minutes.toString().padStart(2, '0');
+
+        setTimecode(`00:${m}:${s}:${f}`);
+    });
+
+    // We need to use a ref or effect to update the text content to avoid re-rendering the whole tree
+    // But for simplicity in this specific component structure, we'll let Framer handle the heavy lifting 
+    // and just use a simple state update here which might be slightly less performant but cleaner code.
+    // For *maximum* performance we'd use a ref and update textContent directly.
+
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const unsubscribe = x.on("change", (latest: number) => {
+            if (ref.current) {
+                const totalFrames = Math.floor((latest / window.innerWidth) * 2000); // 2000 frames total width
+                const frames = totalFrames % 24;
+                const seconds = Math.floor(totalFrames / 24) % 60;
+                const minutes = Math.floor(totalFrames / (24 * 60));
+
+                const f = frames.toString().padStart(2, '0');
+                const s = seconds.toString().padStart(2, '0');
+                const m = minutes.toString().padStart(2, '0');
+
+                ref.current.textContent = `00:${m}:${s}:${f}`;
+            }
+        });
+        return () => unsubscribe();
+    }, [x]);
+
+    return <div ref={ref}>{timecode}</div>;
 };
 
 export default Hero;
